@@ -39,7 +39,201 @@
   </div>
 </div>
 
-<script type="module" src="js/admin-products.js"></script>
+<!-- ============ FIREBASE + LOGIC ============ -->
+<script type="module">
+
+/* ========== FIREBASE CONFIG ========== */
+const firebaseConfig = {
+  apiKey: "AIzaSyAtCagT7Al29I_WLsG4AFfy-DKGi_svA9A",
+  authDomain: "crazy-flip-be56c.firebaseapp.com",
+  databaseURL: "https://crazy-flip-be56c-default-rtdb.firebaseio.com",
+  projectId: "crazy-flip-be56c",
+  storageBucket: "crazy-flip-be56c.firebasestorage.app",
+  messagingSenderId: "298724582283",
+  appId: "1:298724582283:web:8e30164a256fe1fe96858e"
+};
+
+/* ========== IMPORTS ========== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getDatabase, ref, set, get, push, update, remove
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+/* ========== INIT FIREBASE ========== */
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+console.log('🔥 Firebase initialized');
+
+/* ========== ELEMENTS ========== */
+const modal = document.getElementById('modal');
+const modalContent = document.getElementById('modalContent');
+const closeBtn = document.getElementById('modalClose');
+const addBtn = document.getElementById('addProductBtn');
+const listBox = document.getElementById('productsList');
+
+console.log('📦 Elements loaded:', {
+  modal: !!modal,
+  modalContent: !!modalContent,
+  addBtn: !!addBtn,
+  listBox: !!listBox
+});
+
+/* ========== MODAL CLOSE ========== */
+closeBtn.addEventListener('click', () => modal.classList.remove('open'));
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) modal.classList.remove('open');
+});
+
+/* ========== LOAD PRODUCTS ========== */
+let allProducts = [];
+
+async function loadProducts() {
+  listBox.innerHTML = '<p style="color:#666">Loading products...</p>';
+  try {
+    const snap = await get(ref(db, 'products'));
+    const data = snap.val() || {};
+    allProducts = Object.keys(data).map(id => ({ id, ...data[id] }));
+    console.log('✅ Products loaded:', allProducts.length);
+  } catch (err) {
+    console.error('❌ Load error:', err);
+    listBox.innerHTML = '<p style="color:#f55">⚠️ Failed to load. Check Firebase connection.</p>';
+    return;
+  }
+
+  if (!allProducts.length) {
+    listBox.innerHTML = '<p style="color:#666">No products yet. Click ADD PRODUCT.</p>';
+    return;
+  }
+
+  listBox.innerHTML = allProducts.map(p => {
+    const firstPrice = p.plans?.[0]?.price ?? 0;
+    const planCount = p.plans?.length || 0;
+    return `
+      <div class="item-card">
+        <div class="item-info">
+          <h4>${p.name}</h4>
+          <p>Starting: <b>GH₵ ${firstPrice}</b> · Plans: <b>${planCount}</b></p>
+        </div>
+        <div class="actions">
+          <button class="btn-edit" data-edit="${p.id}">EDIT</button>
+          <button class="btn-delete" data-del="${p.id}">DELETE</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  listBox.querySelectorAll('[data-edit]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const prod = allProducts.find(x => x.id === btn.dataset.edit);
+      if (prod) openProductForm(prod);
+    });
+  });
+
+  listBox.querySelectorAll('[data-del]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Delete this product?')) return;
+      try {
+        await remove(ref(db, 'products/' + btn.dataset.del));
+        loadProducts();
+      } catch (err) {
+        console.error(err);
+        alert('Delete failed: ' + err.message);
+      }
+    });
+  });
+}
+
+/* ========== ADD BUTTON ========== */
+addBtn.addEventListener('click', () => {
+  console.log('👆 ADD clicked');
+  openProductForm(null);
+});
+
+/* ========== PRODUCT FORM ========== */
+function openProductForm(product) {
+  const isEdit = !!product;
+  const plansText = (product?.plans || [])
+    .map(x => `${x.name}|${x.price}`)
+    .join('\n');
+
+  modalContent.innerHTML = `
+    <h2>${isEdit ? 'Edit Product' : 'Add Product'}</h2>
+
+    <label>Product Name</label>
+    <input id="fpName" type="text" placeholder="X Premium" value="${product?.name || ''}" />
+
+    <label>Image URL</label>
+    <input id="fpImage" type="text" placeholder="https://example.com/image.jpg" value="${product?.image || ''}" />
+
+    <label>Description</label>
+    <textarea id="fpDesc" rows="3" placeholder="Short description...">${product?.description || ''}</textarea>
+
+    <label>Plans — Format: Name|Price (প্রতি লাইনে একটা)</label>
+    <textarea id="fpPlans" rows="5" placeholder="1 Month|30&#10;3 Months|90&#10;6 Months|170">${plansText}</textarea>
+
+    <button class="save-btn" id="fpSave">SAVE PRODUCT</button>
+  `;
+
+  modal.classList.add('open');
+
+  document.getElementById('fpSave').addEventListener('click', async () => {
+    const name = document.getElementById('fpName').value.trim();
+    const image = document.getElementById('fpImage').value.trim();
+    const description = document.getElementById('fpDesc').value.trim();
+    const plansRaw = document.getElementById('fpPlans').value.trim();
+
+    if (!name) return alert('Product Name দিন');
+    if (!image) return alert('Image URL দিন');
+    if (!plansRaw) return alert('অন্তত একটা Plan দিন');
+
+    const plans = plansRaw
+      .split('\n')
+      .map(l => l.trim())
+      .filter(Boolean)
+      .map(l => {
+        const parts = l.split('|');
+        return {
+          name: (parts[0] || '').trim(),
+          price: Number((parts[1] || '').trim()) || 0
+        };
+      })
+      .filter(p => p.name);
+
+    if (!plans.length) return alert('Plans format: Name|Price');
+
+    const data = { name, image, description, plans };
+    const btn = document.getElementById('fpSave');
+
+    try {
+      btn.textContent = 'SAVING...';
+      btn.disabled = true;
+
+      if (isEdit) {
+        await update(ref(db, 'products/' + product.id), data);
+        console.log('✅ Product updated:', product.id);
+      } else {
+        const newRef = push(ref(db, 'products'));
+        await set(newRef, data);
+        console.log('✅ Product added:', newRef.key);
+      }
+
+      modal.classList.remove('open');
+      alert('✅ Product saved!');
+      loadProducts();
+    } catch (err) {
+      console.error('❌ Save error:', err);
+      alert('❌ Save failed: ' + err.message);
+      btn.textContent = 'SAVE PRODUCT';
+      btn.disabled = false;
+    }
+  });
+}
+
+/* ========== INIT ========== */
+loadProducts();
+
+</script>
 
 </body>
 </html>
