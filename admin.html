@@ -1,1 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dashboard — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="admin-wrap">
+  <div id="sidebar"></div>
+  <main class="main">
+    <h1>Dashboard</h1>
 
+    <div class="stats-grid">
+      <div class="stat-card"><h3>TOTAL ORDERS</h3><p id="stTotal">0</p></div>
+      <div class="stat-card"><h3>PENDING</h3><p id="stPending">0</p></div>
+      <div class="stat-card"><h3>COMPLETED</h3><p id="stCompleted">0</p></div>
+      <div class="stat-card"><h3>REVENUE (GH₵)</h3><p id="stRevenue">0</p></div>
+    </div>
+
+    <h2 class="section-sub">QUICK ACTIONS</h2>
+    <div class="quick-grid">
+      <a href="admin-products.html" class="quick-card">
+        <div class="quick-icon">🛍️</div>
+        <div class="quick-label">ADD PRODUCT</div>
+        <div class="quick-desc">নতুন product যোগ করুন</div>
+      </a>
+      <a href="admin-banner.html" class="quick-card">
+        <div class="quick-icon">🖼️</div>
+        <div class="quick-label">ADD BANNER</div>
+        <div class="quick-desc">Banner image যোগ করুন</div>
+      </a>
+      <a href="admin-orders.html" class="quick-card">
+        <div class="quick-icon">📦</div>
+        <div class="quick-label">VIEW ORDERS</div>
+        <div class="quick-desc">সব order দেখুন</div>
+      </a>
+      <a href="admin-settings.html" class="quick-card">
+        <div class="quick-icon">⚙️</div>
+        <div class="quick-label">SETTINGS</div>
+        <div class="quick-desc">MoMo, WhatsApp, Telegram</div>
+      </a>
+      <a href="index.html" target="_blank" class="quick-card">
+        <div class="quick-icon">🌐</div>
+        <div class="quick-label">VIEW WEBSITE</div>
+        <div class="quick-desc">Landing page দেখুন</div>
+      </a>
+    </div>
+  </main>
+</div>
+<script type="module" src="js/admin.js"></script>
+</body>
+</html>
