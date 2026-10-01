@@ -30,6 +30,8 @@
 
 <script type="module">
 
+console.log('💳 Payment page loading...');
+
 const firebaseConfig = {
   apiKey: "AIzaSyAtCagT7Al29I_WLsG4AFfy-DKGi_svA9A",
   authDomain: "crazy-flip-be56c.firebaseapp.com",
@@ -41,7 +43,9 @@ const firebaseConfig = {
 };
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, get, push, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import {
+  getDatabase, ref, get, push, set
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
@@ -50,32 +54,52 @@ const params = new URLSearchParams(window.location.search);
 const productId = params.get('id');
 const planIndex = Number(params.get('planIndex') || 0);
 
+console.log('📦 Product ID:', productId);
+console.log('🎯 Plan Index:', planIndex);
+
 let currentProduct = null;
 let currentPlan = null;
 let settings = {};
 
 (async () => {
   const wrap = document.getElementById('paymentWrap');
+
   if (!productId) {
-    wrap.innerHTML = '<div class="loading">Invalid request.</div>';
+    wrap.innerHTML = '<div class="loading">Invalid request. No product ID.</div>';
     return;
   }
+
   try {
+    /* Settings load */
     const sSnap = await get(ref(db, 'settings'));
     settings = sSnap.val() || {};
+    console.log('⚙️ Settings:', settings);
 
+    /* Product load */
     const pSnap = await get(ref(db, 'products/' + productId));
     currentProduct = pSnap.val();
-    if (!currentProduct || !currentProduct.plans?.[planIndex]) {
-      wrap.innerHTML = '<div class="loading">Product not found.</div>';
+
+    if (!currentProduct) {
+      wrap.innerHTML = '<div class="loading">Product not found in database.</div>';
       return;
     }
+
     currentProduct.id = productId;
-    currentPlan = currentProduct.plans[planIndex];
+    console.log('✅ Product loaded:', currentProduct);
+
+    /* Plan check */
+    if (!currentProduct.plans || !currentProduct.plans.length) {
+      wrap.innerHTML = '<div class="loading">No plans available for this product.</div>';
+      return;
+    }
+
+    currentPlan = currentProduct.plans[planIndex] || currentProduct.plans[0];
+    console.log('✅ Plan selected:', currentPlan);
+
     renderPayment();
   } catch (e) {
-    console.error(e);
-    wrap.innerHTML = '<div class="loading">Failed to load.</div>';
+    console.error('❌ Load error:', e);
+    wrap.innerHTML = '<div class="loading">Failed to load. Check console.</div>';
   }
 })();
 
@@ -96,11 +120,13 @@ function renderPayment() {
         ${settings.paymentText || 'Send money to the number below, then enter your details.'}
       </p>
       <div class="momo-row">
-        <span>MoMo Number</span><b id="momoNum">${settings.momoNumber || '-'}</b>
+        <span>MoMo Number</span>
+        <b id="momoNum">${settings.momoNumber || 'Not set'}</b>
         <button class="copy-btn" id="copyMomo">COPY</button>
       </div>
       <div class="momo-row">
-        <span>Account Name</span><b>${settings.accountName || '-'}</b>
+        <span>Account Name</span>
+        <b>${settings.accountName || 'Not set'}</b>
       </div>
     </div>
 
@@ -120,7 +146,9 @@ function renderPayment() {
   `;
 
   document.getElementById('copyMomo').onclick = () => {
-    navigator.clipboard.writeText(settings.momoNumber || '');
+    const momo = settings.momoNumber || '';
+    if (!momo) return alert('MoMo number set করা নেই');
+    navigator.clipboard.writeText(momo);
     const b = document.getElementById('copyMomo');
     b.textContent = 'COPIED!';
     setTimeout(() => b.textContent = 'COPY', 1500);
@@ -133,7 +161,13 @@ function renderPayment() {
 async function confirmOrder(source) {
   const wp = document.getElementById('inpWhatsapp').value.trim();
   const tx = document.getElementById('inpTxid').value.trim();
-  if (!wp || !tx) return alert('WhatsApp number & Transaction ID দিন!');
+
+  if (!wp) return alert('WhatsApp number দিন!');
+  if (!tx) return alert('Transaction ID দিন!');
+
+  const btn = document.getElementById(source === 'WhatsApp' ? 'btnWhatsapp' : 'btnTelegram');
+  btn.textContent = 'SAVING...';
+  btn.disabled = true;
 
   const now = new Date();
   const dateStr = now.toLocaleString('en-GB', {
@@ -141,16 +175,22 @@ async function confirmOrder(source) {
     hour: '2-digit', minute: '2-digit'
   });
 
-  // Generate Order ID
-  const countSnap = await get(ref(db, 'orders'));
-  const count = Object.keys(countSnap.val() || {}).length;
-  const orderId = `CF-${1001 + count}`;
+  /* Order ID generate */
+  let orderId = 'CF-1001';
+  try {
+    const countSnap = await get(ref(db, 'orders'));
+    const count = Object.keys(countSnap.val() || {}).length;
+    orderId = `CF-${1001 + count}`;
+    console.log('🆔 Order ID:', orderId);
+  } catch (e) {
+    console.warn('Order ID count failed, using default', e);
+  }
 
   const orderData = {
     orderId,
     product: currentProduct.name,
     plan: currentPlan.name,
-    price: currentPlan.price,
+    price: Number(currentPlan.price) || 0,
     whatsappNumber: wp,
     transactionId: tx,
     date: dateStr,
@@ -159,12 +199,17 @@ async function confirmOrder(source) {
     createdAt: Date.now()
   };
 
+  console.log('💾 Saving order:', orderData);
+
   try {
     const newRef = push(ref(db, 'orders'));
     await set(newRef, orderData);
+    console.log('✅ Order saved:', newRef.key);
   } catch (err) {
-    console.error(err);
-    alert('Order save failed: ' + err.message);
+    console.error('❌ Save error:', err);
+    alert('❌ Order save failed: ' + err.message);
+    btn.textContent = source === 'WhatsApp' ? 'CONFIRM VIA WHATSAPP' : 'CONFIRM VIA TELEGRAM';
+    btn.disabled = false;
     return;
   }
 
@@ -186,14 +231,16 @@ ${tx}`;
   if (source === 'WhatsApp') {
     const num = (settings.whatsapp || '').replace(/\D/g, '');
     if (!num) {
-      alert('Order saved! But admin WhatsApp number set করা নেই।');
+      alert('✅ Order saved! But admin WhatsApp number set করা নেই।\n\nAdmin Settings এ গিয়ে WhatsApp number যোগ করুন।');
+      setTimeout(() => window.location.href = 'index.html', 1500);
       return;
     }
     window.open(`https://wa.me/${num}?text=${encoded}`, '_blank');
   } else {
     const tg = (settings.telegram || '').replace('@', '');
     if (!tg) {
-      alert('Order saved! But admin Telegram set করা নেই।');
+      alert('✅ Order saved! But admin Telegram set করা নেই।\n\nAdmin Settings এ গিয়ে Telegram username যোগ করুন।');
+      setTimeout(() => window.location.href = 'index.html', 1500);
       return;
     }
     navigator.clipboard.writeText(msg);
@@ -201,7 +248,9 @@ ${tx}`;
     setTimeout(() => alert('Order saved! Telegram এ message paste করে পাঠান।'), 500);
   }
 
-  setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+  setTimeout(() => {
+    window.location.href = 'index.html';
+  }, 1500);
 }
 
 </script>
