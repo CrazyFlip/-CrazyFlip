@@ -31,6 +31,8 @@
 
 <script type="module">
 
+console.log('🛍️ Product Details loading...');
+
 const firebaseConfig = {
   apiKey: "AIzaSyAtCagT7Al29I_WLsG4AFfy-DKGi_svA9A",
   authDomain: "crazy-flip-be56c.firebaseapp.com",
@@ -49,8 +51,11 @@ const db = getDatabase(app);
 
 const params = new URLSearchParams(window.location.search);
 const productId = params.get('id');
+console.log('📦 Product ID:', productId);
+
 let currentProduct = null;
 let currentPlan = null;
+let plans = [];
 
 (async () => {
   const wrap = document.getElementById('detailWrap');
@@ -62,19 +67,21 @@ let currentPlan = null;
     const snap = await get(ref(db, 'products/' + productId));
     currentProduct = snap.val();
     if (!currentProduct) {
-      wrap.innerHTML = '<div class="loading">Product not found.</div>';
+      wrap.innerHTML = '<div class="loading">Product not found in database.</div>';
       return;
     }
+    currentProduct.id = productId;
+    console.log('✅ Product loaded:', currentProduct);
     renderDetail();
   } catch (e) {
-    console.error(e);
-    wrap.innerHTML = '<div class="loading">Failed to load.</div>';
+    console.error('❌ Load error:', e);
+    wrap.innerHTML = '<div class="loading">Failed to load product.</div>';
   }
 })();
 
 function renderDetail() {
   const p = currentProduct;
-  const plans = p.plans || [];
+  plans = p.plans || [];
   currentPlan = plans[0] || null;
 
   const wrap = document.getElementById('detailWrap');
@@ -109,8 +116,10 @@ function renderDetail() {
 
   document.getElementById('buyNowBtn').onclick = () => {
     if (!currentPlan) return alert('Select a plan');
-    window.location.href =
-      `payment.html?id=${p.id}&planIndex=${plans.indexOf(currentPlan)}`;
+    const idx = plans.indexOf(currentPlan);
+    const url = `payment.html?id=${encodeURIComponent(p.id)}&planIndex=${idx}`;
+    console.log('➡️ Going to:', url);
+    window.location.href = url;
   };
 }
 
