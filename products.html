@@ -30,6 +30,54 @@
   <p>CRAZY FLIP © 2026</p>
 </footer>
 
-<script type="module" src="js/products.js"></script>
+<script type="module">
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAtCagT7Al29I_WLsG4AFfy-DKGi_svA9A",
+  authDomain: "crazy-flip-be56c.firebaseapp.com",
+  databaseURL: "https://crazy-flip-be56c-default-rtdb.firebaseio.com",
+  projectId: "crazy-flip-be56c",
+  storageBucket: "crazy-flip-be56c.firebasestorage.app",
+  messagingSenderId: "298724582283",
+  appId: "1:298724582283:web:8e30164a256fe1fe96858e"
+};
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+(async () => {
+  try {
+    const snap = await get(ref(db, 'products'));
+    const data = snap.val() || {};
+    const products = Object.keys(data).map(id => ({ id, ...data[id] }));
+    const grid = document.getElementById('productsGrid');
+
+    if (!products.length) {
+      grid.innerHTML = '<div class="loading">No products yet.</div>';
+      return;
+    }
+    grid.innerHTML = products.map((p, i) => `
+      <div class="product-card" style="animation-delay:${i * .05}s">
+        <img src="${p.image}" alt="${p.name}"
+          onerror="this.src='https://via.placeholder.com/300x180/111/fff?text=CF'"/>
+        <div class="pc-body">
+          <div class="pc-name">${p.name}</div>
+          <div class="pc-price">Starting <b>GH₵ ${p.plans?.[0]?.price ?? 0}</b></div>
+          <a href="product-details.html?id=${p.id}" class="btn-view">VIEW PRODUCT</a>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    console.error(e);
+    document.getElementById('productsGrid').innerHTML =
+      '<div class="loading">Failed to load products.</div>';
+  }
+})();
+
+</script>
+
 </body>
 </html>
