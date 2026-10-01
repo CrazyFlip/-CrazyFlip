@@ -54,6 +54,8 @@
 
 <script type="module">
 
+console.log('🔧 Admin Settings loading...');
+
 const firebaseConfig = {
   apiKey: "AIzaSyAtCagT7Al29I_WLsG4AFfy-DKGi_svA9A",
   authDomain: "crazy-flip-be56c.firebaseapp.com",
@@ -65,15 +67,22 @@ const firebaseConfig = {
 };
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import {
+  getDatabase, ref, get, set, update
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-(async () => {
+console.log('🔥 Firebase ready');
+
+/* ========== LOAD SETTINGS ========== */
+async function loadSettings() {
   try {
     const snap = await get(ref(db, 'settings'));
     const s = snap.val() || {};
+    console.log('📥 Loaded:', s);
+
     document.getElementById('setSiteName').value = s.siteName || '';
     document.getElementById('setLogo').value = s.logo || '';
     document.getElementById('setMomo').value = s.momoNumber || '';
@@ -82,35 +91,49 @@ const db = getDatabase(app);
     document.getElementById('setWhatsapp').value = s.whatsapp || '';
     document.getElementById('setTelegram').value = s.telegram || '';
   } catch (e) {
-    console.error(e);
+    console.error('❌ Load error:', e);
+    alert('Failed to load settings: ' + e.message);
   }
+}
 
-  document.getElementById('saveBtn').onclick = async () => {
-    const btn = document.getElementById('saveBtn');
-    try {
-      btn.textContent = 'SAVING...';
-      btn.disabled = true;
+/* ========== SAVE SETTINGS ========== */
+document.getElementById('saveBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('saveBtn');
 
-      await update(ref(db, 'settings'), {
-        siteName: document.getElementById('setSiteName').value.trim(),
-        logo: document.getElementById('setLogo').value.trim(),
-        momoNumber: document.getElementById('setMomo').value.trim(),
-        accountName: document.getElementById('setAcc').value.trim(),
-        paymentText: document.getElementById('setPayText').value.trim(),
-        whatsapp: document.getElementById('setWhatsapp').value.trim(),
-        telegram: document.getElementById('setTelegram').value.trim()
-      });
-      alert('✅ Settings saved!');
-      btn.textContent = 'SAVE SETTINGS';
-      btn.disabled = false;
-    } catch (err) {
-      console.error(err);
-      alert('❌ Failed: ' + err.message);
-      btn.textContent = 'SAVE SETTINGS';
-      btn.disabled = false;
-    }
+  const data = {
+    siteName: document.getElementById('setSiteName').value.trim(),
+    logo: document.getElementById('setLogo').value.trim(),
+    momoNumber: document.getElementById('setMomo').value.trim(),
+    accountName: document.getElementById('setAcc').value.trim(),
+    paymentText: document.getElementById('setPayText').value.trim(),
+    whatsapp: document.getElementById('setWhatsapp').value.trim(),
+    telegram: document.getElementById('setTelegram').value.trim()
   };
-})();
+
+  console.log('💾 Saving:', data);
+
+  try {
+    btn.textContent = 'SAVING...';
+    btn.disabled = true;
+
+    await set(ref(db, 'settings'), data);
+
+    console.log('✅ Saved successfully');
+    alert('✅ Settings saved successfully!');
+
+    btn.textContent = 'SAVE SETTINGS';
+    btn.disabled = false;
+  } catch (err) {
+    console.error('❌ Save error:', err);
+    alert('❌ Save failed:\n' + err.message +
+      '\n\nFirebase Console → Realtime Database → Rules চেক করুন।');
+    btn.textContent = 'SAVE SETTINGS';
+    btn.disabled = false;
+  }
+});
+
+/* ========== INIT ========== */
+loadSettings();
 
 </script>
 
