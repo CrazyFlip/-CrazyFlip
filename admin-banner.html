@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,21 +9,154 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
 <div class="admin-wrap">
-  <div id="sidebar"></div>
+  <aside class="sidebar">
+    <a href="index.html" class="side-logo">CRAZY<span>FLIP</span></a>
+    <nav>
+      <a class="nav-btn" href="admin.html">📊 Dashboard</a>
+      <a class="nav-btn" href="admin-orders.html">📦 Orders</a>
+      <a class="nav-btn" href="admin-products.html">🛍️ Products</a>
+      <a class="nav-btn active" href="admin-banner.html">🖼️ Banner Manager</a>
+      <a class="nav-btn" href="admin-settings.html">⚙️ Website Settings</a>
+    </nav>
+  </aside>
+
   <main class="main">
     <h1>Banner Manager</h1>
     <button class="add-btn" id="addBannerBtn">+ ADD BANNER</button>
-    <div id="bannersList" class="list"></div>
+    <div id="bannersList" class="list">
+      <p style="color:#666">Loading...</p>
+    </div>
   </main>
 </div>
 
+<!-- MODAL -->
 <div class="modal" id="modal">
   <div class="modal-box">
     <button class="modal-close" id="modalClose">&times;</button>
     <div id="modalContent"></div>
   </div>
 </div>
-<script type="module" src="js/admin-banner.js"></script>
+
+<script type="module">
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAtCagT7Al29I_WLsG4AFfy-DKGi_svA9A",
+  authDomain: "crazy-flip-be56c.firebaseapp.com",
+  databaseURL: "https://crazy-flip-be56c-default-rtdb.firebaseio.com",
+  projectId: "crazy-flip-be56c",
+  storageBucket: "crazy-flip-be56c.firebasestorage.app",
+  messagingSenderId: "298724582283",
+  appId: "1:298724582283:web:8e30164a256fe1fe96858e"
+};
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, push, update, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const modal = document.getElementById('modal');
+const modalContent = document.getElementById('modalContent');
+document.getElementById('modalClose').onclick = () => modal.classList.remove('open');
+modal.onclick = e => { if (e.target === modal) modal.classList.remove('open'); };
+
+let allBanners = [];
+
+async function load() {
+  const list = document.getElementById('bannersList');
+  list.innerHTML = '<p style="color:#666">Loading...</p>';
+  try {
+    const snap = await get(ref(db, 'banners'));
+    const data = snap.val() || {};
+    allBanners = Object.keys(data).map(id => ({ id, ...data[id] }));
+  } catch (e) {
+    console.error(e);
+    list.innerHTML = '<p style="color:#f55">Failed to load.</p>';
+    return;
+  }
+
+  if (!allBanners.length) {
+    list.innerHTML = '<p style="color:#666">No banners yet.</p>';
+    return;
+  }
+
+  list.innerHTML = allBanners.map(b => `
+    <div class="item-card">
+      <div class="item-info">
+        <h4>${b.title || '(no title)'}</h4>
+        <p style="word-break:break-all">${b.image}</p>
+      </div>
+      <div class="actions">
+        <button class="btn-edit" data-edit="${b.id}">EDIT</button>
+        <button class="btn-delete" data-del="${b.id}">DELETE</button>
+      </div>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('[data-edit]').forEach(btn =>
+    btn.onclick = () => bannerForm(allBanners.find(x => x.id === btn.dataset.edit)));
+
+  list.querySelectorAll('[data-del]').forEach(btn =>
+    btn.onclick = async () => {
+      if (!confirm('Delete this banner?')) return;
+      try {
+        await remove(ref(db, 'banners/' + btn.dataset.del));
+        load();
+      } catch (e) { alert('Failed: ' + e.message); }
+    });
+}
+
+document.getElementById('addBannerBtn').onclick = () => bannerForm(null);
+
+function bannerForm(b) {
+  modalContent.innerHTML = `
+    <h2>${b ? 'Edit' : 'Add'} Banner</h2>
+    <label>Image URL</label>
+    <input id="fbImage" type="text" placeholder="https://..." value="${b?.image || ''}" />
+    <label>Title (optional)</label>
+    <input id="fbTitle" type="text" value="${b?.title || ''}" />
+    <label>Link (optional)</label>
+    <input id="fbLink" type="text" value="${b?.link || ''}" />
+    <button class="save-btn" id="fbSave">SAVE BANNER</button>
+  `;
+  modal.classList.add('open');
+
+  document.getElementById('fbSave').onclick = async () => {
+    const image = document.getElementById('fbImage').value.trim();
+    const title = document.getElementById('fbTitle').value.trim();
+    const link = document.getElementById('fbLink').value.trim();
+
+    if (!image) return alert('Image URL দিন');
+
+    const btn = document.getElementById('fbSave');
+    try {
+      btn.textContent = 'SAVING...';
+      btn.disabled = true;
+
+      if (b) {
+        await update(ref(db, 'banners/' + b.id), { image, title, link });
+      } else {
+        const newRef = push(ref(db, 'banners'));
+        await set(newRef, { image, title, link });
+      }
+
+      modal.classList.remove('open');
+      alert('✅ Banner saved!');
+      load();
+    } catch (e) {
+      console.error(e);
+      alert('❌ Failed: ' + e.message);
+      btn.textContent = 'SAVE BANNER';
+      btn.disabled = false;
+    }
+  };
+}
+
+load();
+
+</script>
+
 </body>
 </html>
