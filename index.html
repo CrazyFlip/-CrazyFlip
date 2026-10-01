@@ -40,7 +40,7 @@ body {
 }
 .nav-links a:hover { opacity:.6; }
 
-/* ============ BANNER SLIDER - FULL IMAGE ============ */
+/* ============ BANNER SLIDER - NO GAP ============ */
 .banner-slider {
   position: relative;
   width: 100%;
@@ -48,8 +48,8 @@ body {
   padding: 0;
   border-radius: 0;
   overflow: hidden;
-  background: #000;
-  aspect-ratio: 12 / 6;
+  background: #0a0a0a;
+  aspect-ratio: 16 / 7;
   display: block;
   line-height: 0;
   font-size: 0;
@@ -59,10 +59,10 @@ body {
   inset: 0;
   opacity: 0;
   transition: opacity .8s ease;
-  background-size: contain;      /* ✅ FULL IMAGE - কিছু cut হবে না */
+  background-size: cover;        /* ✅ পুরো box ভরবে - কোনো ফাঁকা থাকবে না */
   background-position: center;
   background-repeat: no-repeat;
-  background-color: #000;         /* ✅ ফাঁকা জায়গা কালো */
+  background-color: #0a0a0a;
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
