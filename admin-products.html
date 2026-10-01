@@ -9,15 +9,29 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
 <div class="admin-wrap">
-  <div id="sidebar"></div>
+  <aside class="sidebar">
+    <a href="index.html" class="side-logo">CRAZY<span>FLIP</span></a>
+    <nav>
+      <a class="nav-btn" href="admin.html">📊 Dashboard</a>
+      <a class="nav-btn" href="admin-orders.html">📦 Orders</a>
+      <a class="nav-btn active" href="admin-products.html">🛍️ Products</a>
+      <a class="nav-btn" href="admin-banner.html">🖼️ Banner Manager</a>
+      <a class="nav-btn" href="admin-settings.html">⚙️ Website Settings</a>
+    </nav>
+  </aside>
+
   <main class="main">
     <h1>Products</h1>
     <button class="add-btn" id="addProductBtn">+ ADD PRODUCT</button>
-    <div id="productsList" class="list"></div>
+    <div id="productsList" class="list">
+      <p style="color:#666">Loading...</p>
+    </div>
   </main>
 </div>
 
+<!-- MODAL -->
 <div class="modal" id="modal">
   <div class="modal-box">
     <button class="modal-close" id="modalClose">&times;</button>
@@ -26,5 +40,6 @@
 </div>
 
 <script type="module" src="js/admin-products.js"></script>
+
 </body>
 </html>
