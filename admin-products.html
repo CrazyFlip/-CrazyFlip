@@ -1,1 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Products — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="admin-wrap">
+  <div id="sidebar"></div>
+  <main class="main">
+    <h1>Products</h1>
+    <button class="add-btn" id="addProductBtn">+ ADD PRODUCT</button>
+    <div id="productsList" class="list"></div>
+  </main>
+</div>
 
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose">&times;</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+<script type="module" src="js/admin-products.js"></script>
+</body>
+</html>
