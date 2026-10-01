@@ -1,4 +1,4 @@
-// 🔥 Firebase Console → Project Settings → Web App থেকে নিন
+// 🔥 Firebase Console → Project Settings → Web App এর config
 export const firebaseConfig = {
   apiKey: "AIzaSyAtCagT7Al29I_WLsG4AFfy-DKGi_svA9A",
   authDomain: "crazy-flip-be56c.firebaseapp.com",
