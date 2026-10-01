@@ -31,86 +31,112 @@ a { color:#fff; text-decoration:none; }
 
 /* ============ BANNER SLIDER ============ */
 /* ============ BANNER SLIDER ============ */
+/* ============ BANNER SLIDER ============ */
 .banner-slider {
-  position:relative;
-  width:100%;
-  max-width:1200px;
-  height:380px;
-  margin:30px auto;
-  border-radius:16px;
-  overflow:hidden;
-  background:#0a0a0a;
-  border:1px solid #1a1a1a;
-}
-.banner-slide {
-  position:absolute; inset:0;
-  opacity:0;
-  transition:opacity .8s ease;
-  background-size:cover;
-  background-position:center;
-  background-repeat:no-repeat;
-  display:flex;
-  align-items:flex-end;
-  justify-content:flex-start;
-}
-.banner-slide.active { opacity:1; }
-.banner-slide::after {
-  content:'';
-  position:absolute;
-  left:0; right:0; bottom:0;
-  height:60%;
-  background:linear-gradient(0deg, rgba(0,0,0,.75) 0%, rgba(0,0,0,0) 100%);
-  pointer-events:none;
-}
-.banner-slide h2 {
-  position:relative;
-  z-index:2;
-  font-size:32px;
-  font-weight:900;
-  text-align:left;
-  text-shadow:0 2px 20px rgba(0,0,0,.8);
-  padding:32px 40px;
-  letter-spacing:2px;
-  max-width:70%;
-}
-.banner-dots {
-  position:absolute;
-  bottom:16px;
-  right:20px;
-  display:flex;
-  gap:6px;
-  z-index:5;
-}
-.banner-dots span {
-  width:8px; height:8px;
-  border-radius:50%;
-  background:rgba(255,255,255,.35);
-  cursor:pointer;
-  transition:.3s;
-}
-.banner-dots span.active {
-  background:#fff;
-  width:24px;
-  border-radius:4px;
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 30px auto;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  aspect-ratio: 16 / 7;
 }
 
-@media (max-width:768px) {
+.banner-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity .8s ease;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+
+.banner-slide.active { opacity: 1; }
+
+.banner-slide::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 55%;
+  background: linear-gradient(0deg, rgba(0,0,0,.75) 0%, rgba(0,0,0,0) 100%);
+  pointer-events: none;
+}
+
+.banner-slide h2 {
+  position: relative;
+  z-index: 2;
+  font-size: clamp(18px, 3vw, 32px);
+  font-weight: 900;
+  text-align: left;
+  text-shadow: 0 2px 20px rgba(0,0,0,.8);
+  padding: 24px 32px;
+  letter-spacing: 2px;
+  max-width: 70%;
+  line-height: 1.2;
+}
+
+.banner-dots {
+  position: absolute;
+  bottom: 14px;
+  right: 18px;
+  display: flex;
+  gap: 6px;
+  z-index: 5;
+}
+
+.banner-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.35);
+  cursor: pointer;
+  transition: .3s;
+}
+
+.banner-dots span.active {
+  background: #fff;
+  width: 24px;
+  border-radius: 4px;
+}
+
+/* ---- Phone (mobile) ---- */
+@media (max-width: 768px) {
   .banner-slider {
-    height:220px;
-    margin:16px auto;
-    border-radius:10px;
+    margin: 16px auto;
+    border-radius: 12px;
+    aspect-ratio: 16 / 9;
   }
   .banner-slide h2 {
-    font-size:18px;
-    padding:20px 20px;
-    max-width:100%;
+    font-size: clamp(14px, 4vw, 20px);
+    padding: 16px 20px;
+    max-width: 90%;
+    letter-spacing: 1px;
   }
   .banner-dots {
-    bottom:10px;
-    right:12px;
+    bottom: 10px;
+    right: 12px;
   }
 }
 
+/* ---- Small phones ---- */
+@media (max-width: 480px) {
+  .banner-slider {
+    margin: 12px auto;
+    border-radius: 10px;
+    aspect-ratio: 4 / 3;
+  }
+  .banner-slide h2 {
+    font-size: clamp(13px, 4.5vw, 18px);
+    padding: 12px 14px;
+    max-width: 100%;
+  }
+}
 /* ============ PRODUCTS GRID ============ */
 .products-grid {
   display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
