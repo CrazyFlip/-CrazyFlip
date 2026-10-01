@@ -26,8 +26,9 @@ renderSidebar('products');
 
 const modal = document.getElementById('modal');
 const modalContent = document.getElementById('modalContent');
+
 document.getElementById('modalClose').onclick = () => modal.classList.remove('open');
-modal.onclick = e => { if (e.target === modal) modal.classList.remove('open'); };
+modal.onclick = (e) => { if (e.target === modal) modal.classList.remove('open'); };
 
 let allProducts = [];
 
@@ -50,8 +51,10 @@ async function load() {
       </div>
     </div>
   `).join('');
+
   list.querySelectorAll('[data-edit]').forEach(b =>
     b.onclick = () => productForm(allProducts.find(x => x.id === b.dataset.edit)));
+
   list.querySelectorAll('[data-del]').forEach(b =>
     b.onclick = async () => {
       if (confirm('Delete product?')) { await deleteProduct(b.dataset.del); load(); }
@@ -63,9 +66,12 @@ document.getElementById('addProductBtn').onclick = () => productForm(null);
 function productForm(p) {
   modalContent.innerHTML = `
     <h2>${p ? 'Edit' : 'Add'} Product</h2>
-    <label>Name</label><input id="fpName" value="${p?.name || ''}" />
-    <label>Image URL</label><input id="fpImage" value="${p?.image || ''}" />
-    <label>Description</label><textarea id="fpDesc" rows="3">${p?.description || ''}</textarea>
+    <label>Name</label>
+    <input id="fpName" value="${p?.name || ''}" />
+    <label>Image URL</label>
+    <input id="fpImage" value="${p?.image || ''}" />
+    <label>Description</label>
+    <textarea id="fpDesc" rows="3">${p?.description || ''}</textarea>
     <label>Plans (Plan Name|Price — প্রতি লাইনে একটা)</label>
     <textarea id="fpPlans" rows="5" placeholder="1 Month|30&#10;3 Months|90&#10;6 Months|170">${
       (p?.plans || []).map(x => `${x.name}|${x.price}`).join('\n')
@@ -75,23 +81,37 @@ function productForm(p) {
   modal.classList.add('open');
 
   document.getElementById('fpSave').onclick = async () => {
-    const plans = document.getElementById('fpPlans').value
-      .split('\n').map(l => l.trim()).filter(Boolean)
+    const plansText = document.getElementById('fpPlans').value.trim();
+    const plans = plansText
+      .split('\n')
+      .map(l => l.trim())
+      .filter(Boolean)
       .map(l => {
-        const [name, price] = l.split('|').map(s => s.trim());
-        return { name, price: Number(price) || 0 };
+        const parts = l.split('|');
+        return { name: parts[0].trim(), price: Number(parts[1]) || 0 };
       });
+
     const data = {
       name: document.getElementById('fpName').value.trim(),
       image: document.getElementById('fpImage').value.trim(),
       description: document.getElementById('fpDesc').value.trim(),
       plans
     };
-    if (!data.name || !data.image) return alert('Name & Image URL দিন');
-    if (p) await updateProduct(p.id, data);
-    else await addProduct(data);
-    modal.classList.remove('open');
-    load();
+
+    if (!data.name || !data.image) {
+      alert('Name & Image URL দিন');
+      return;
+    }
+
+    try {
+      if (p) await updateProduct(p.id, data);
+      else await addProduct(data);
+      modal.classList.remove('open');
+      load();
+    } catch (err) {
+      console.error(err);
+      alert('Save failed: ' + err.message);
+    }
   };
 }
 
