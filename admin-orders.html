@@ -9,20 +9,117 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
 <div class="admin-wrap">
-  <div id="sidebar"></div>
+  <aside class="sidebar">
+    <a href="index.html" class="side-logo">CRAZY<span>FLIP</span></a>
+    <nav>
+      <a class="nav-btn" href="admin.html">📊 Dashboard</a>
+      <a class="nav-btn active" href="admin-orders.html">📦 Orders</a>
+      <a class="nav-btn" href="admin-products.html">🛍️ Products</a>
+      <a class="nav-btn" href="admin-banner.html">🖼️ Banner Manager</a>
+      <a class="nav-btn" href="admin-settings.html">⚙️ Website Settings</a>
+    </nav>
+  </aside>
+
   <main class="main">
     <h1>Orders</h1>
-    <div id="ordersList" class="list"></div>
+    <div id="ordersList" class="list">
+      <p style="color:#666">Loading...</p>
+    </div>
   </main>
 </div>
 
+<!-- MODAL -->
 <div class="modal" id="modal">
   <div class="modal-box">
     <button class="modal-close" id="modalClose">&times;</button>
     <div id="modalContent"></div>
   </div>
 </div>
-<script type="module" src="js/admin-orders.js"></script>
+
+<script type="module">
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAtCagT7Al29I_WLsG4AFfy-DKGi_svA9A",
+  authDomain: "crazy-flip-be56c.firebaseapp.com",
+  databaseURL: "https://crazy-flip-be56c-default-rtdb.firebaseio.com",
+  projectId: "crazy-flip-be56c",
+  storageBucket: "crazy-flip-be56c.firebasestorage.app",
+  messagingSenderId: "298724582283",
+  appId: "1:298724582283:web:8e30164a256fe1fe96858e"
+};
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const modal = document.getElementById('modal');
+const modalContent = document.getElementById('modalContent');
+document.getElementById('modalClose').onclick = () => modal.classList.remove('open');
+modal.onclick = e => { if (e.target === modal) modal.classList.remove('open'); };
+
+let allOrders = [];
+
+onValue(ref(db, 'orders'), snap => {
+  const data = snap.val() || {};
+  allOrders = Object.keys(data).map(id => ({ id, ...data[id] }))
+    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  renderOrders(allOrders);
+});
+
+function renderOrders(orders) {
+  const list = document.getElementById('ordersList');
+  if (!orders.length) {
+    list.innerHTML = '<p style="color:#666">No orders yet.</p>';
+    return;
+  }
+  list.innerHTML = orders.map(o => `
+    <div class="item-card">
+      <div class="item-info">
+        <h4>${o.orderId} — ${o.product}</h4>
+        <p>Plan: <b>${o.plan}</b> · Price: <b>GH₵ ${o.price}</b> · ${o.date}</p>
+        <p>WP: <b>${o.whatsappNumber}</b> · TXID: <b>${o.transactionId}</b> · via <b>${o.source || '-'}</b></p>
+      </div>
+      <span class="status ${o.status}">${o.status}</span>
+      <div class="actions">
+        <button class="btn-view-o" data-view="${o.id}">VIEW</button>
+        <button class="btn-complete" data-complete="${o.id}">COMPLETE</button>
+        <button class="btn-cancel" data-cancel="${o.id}">CANCEL</button>
+        <button class="btn-delete" data-del="${o.id}">DELETE</button>
+      </div>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('[data-view]').forEach(b => b.onclick = () => {
+    const o = allOrders.find(x => x.id === b.dataset.view);
+    modalContent.innerHTML = `
+      <h2>Order ${o.orderId}</h2>
+      <p><b>Product:</b> ${o.product}</p>
+      <p><b>Plan:</b> ${o.plan}</p>
+      <p><b>Price:</b> GH₵ ${o.price}</p>
+      <p><b>WhatsApp:</b> ${o.whatsappNumber}</p>
+      <p><b>Transaction ID:</b> ${o.transactionId}</p>
+      <p><b>Date:</b> ${o.date}</p>
+      <p><b>Source:</b> ${o.source || '-'}</p>
+      <p><b>Status:</b> ${o.status}</p>
+    `;
+    modal.classList.add('open');
+  });
+
+  list.querySelectorAll('[data-complete]').forEach(b =>
+    b.onclick = () => update(ref(db, 'orders/' + b.dataset.complete), { status: 'Completed' }));
+  list.querySelectorAll('[data-cancel]').forEach(b =>
+    b.onclick = () => update(ref(db, 'orders/' + b.dataset.cancel), { status: 'Cancelled' }));
+  list.querySelectorAll('[data-del]').forEach(b =>
+    b.onclick = () => {
+      if (confirm('Delete order?')) remove(ref(db, 'orders/' + b.dataset.del));
+    });
+}
+
+</script>
+
 </body>
 </html>
