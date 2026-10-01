@@ -39,7 +39,7 @@ body {
 }
 .nav-links a:hover { opacity:.6; }
 
-/* ============ BANNER SLIDER - IMAGE TAG ============ */
+/* ============ BANNER SLIDER - NO GAP ============ */
 .banner-slider {
   position: relative;
   width: 100%;
@@ -51,12 +51,20 @@ body {
   display: block;
   line-height: 0;
   font-size: 0;
+  height: auto;
+  min-height: 0;
+  max-height: none;
 }
 
 .banner-slide {
   display: none;
   position: relative;
   width: 100%;
+  margin: 0;
+  padding: 0;
+  height: auto;
+  line-height: 0;
+  font-size: 0;
 }
 .banner-slide.active {
   display: block;
@@ -65,21 +73,24 @@ body {
 .banner-slide img {
   display: block;
   width: 100%;
-  height: auto;      /* ✅ Image এর নিজের height - box = image height */
+  height: auto;
   margin: 0;
   padding: 0;
+  vertical-align: top;
+  line-height: 0;
+  font-size: 0;
 }
 
-/* Title overlay (optional) */
+/* Title overlay */
 .banner-slide .banner-title {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 20px 22px;
+  padding: 16px 20px;
   background: linear-gradient(0deg, rgba(0,0,0,.7) 0%, rgba(0,0,0,0) 100%);
   color: #fff;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 900;
   text-align: left;
   letter-spacing: 1px;
@@ -117,13 +128,14 @@ body {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 5% 60px;
+  padding: 20px 5% 60px;   /* ✅ কম padding - banner এর ঠিক পরেই শুরু */
 }
 .section-title {
-  font-size:24px; font-weight:900;
+  font-size:22px; font-weight:900;
   text-align:center;
-  margin-bottom:28px;
+  margin-bottom:22px;
   letter-spacing:2px;
+  padding-top: 8px;
 }
 .products-grid {
   display:grid;
@@ -210,17 +222,17 @@ body {
 
   .banner-slider {
     max-width: 1200px;
-    margin: 30px auto;
+    margin: 30px auto 0;
     border-radius: 16px;
     border: 1px solid #1a1a1a;
   }
   .banner-slide .banner-title {
-    font-size: 26px;
-    padding: 28px 32px;
+    font-size: 24px;
+    padding: 24px 32px;
     letter-spacing: 2px;
   }
 
-  .section-title { font-size:32px; margin-bottom:40px; }
+  .section-title { font-size:32px; margin-bottom:36px; }
   .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
     gap: 22px;
@@ -251,7 +263,7 @@ body {
 
 <section class="banner-slider" id="bannerSlider">
   <div class="banner-slide active">
-    <div style="background:#0a0a0a; padding:60px 20px; text-align:center;">
+    <div style="background:#0a0a0a; padding:50px 20px; text-align:center;">
       <h2 style="font-size:22px; font-weight:900; letter-spacing:2px;">WELCOME TO CRAZY FLIP</h2>
     </div>
   </div>
@@ -327,7 +339,7 @@ function renderBanners() {
   const el = document.getElementById('bannerSlider');
   if (!banners.length) return;
 
-  /* ✅ Image tag version - box = image height */
+  /* ✅ Image tag version - NO extra space */
   el.innerHTML = banners.map((b, i) => `
     <div class="banner-slide ${i === 0 ? 'active' : ''}">
       <img src="${b.image}" alt="${b.title || 'Banner'}"
