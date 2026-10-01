@@ -36,6 +36,101 @@
   <p id="footerName">CRAZY FLIP © 2026</p>
 </footer>
 
-<script type="module" src="js/app.js"></script>
+<script type="module">
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAtCagT7Al29I_WLsG4AFfy-DKGi_svA9A",
+  authDomain: "crazy-flip-be56c.firebaseapp.com",
+  databaseURL: "https://crazy-flip-be56c-default-rtdb.firebaseio.com",
+  projectId: "crazy-flip-be56c",
+  storageBucket: "crazy-flip-be56c.firebasestorage.app",
+  messagingSenderId: "298724582283",
+  appId: "1:298724582283:web:8e30164a256fe1fe96858e"
+};
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+let banners = [], bannerIndex = 0, bannerTimer;
+
+(async () => {
+  try {
+    // SETTINGS
+    const sSnap = await get(ref(db, 'settings'));
+    const settings = sSnap.val() || {};
+    document.getElementById('footerName').textContent =
+      (settings.siteName || 'CRAZY FLIP') + ' © 2026';
+    document.title = settings.siteName || 'CRAZY FLIP';
+    if (settings.logo) {
+      document.getElementById('siteLogo').innerHTML =
+        `<img src="${settings.logo}" style="height:32px" alt="logo"/>`;
+    }
+
+    // BANNERS
+    const bSnap = await get(ref(db, 'banners'));
+    const bData = bSnap.val() || {};
+    banners = Object.keys(bData).map(id => ({ id, ...bData[id] }));
+    renderBanners();
+
+    // PRODUCTS
+    const pSnap = await get(ref(db, 'products'));
+    const pData = pSnap.val() || {};
+    const products = Object.keys(pData).map(id => ({ id, ...pData[id] }));
+    renderProducts(products.slice(0, 8));
+  } catch (e) {
+    console.error(e);
+    document.getElementById('productsGrid').innerHTML =
+      '<div class="loading">Firebase connection failed.</div>';
+  }
+})();
+
+function renderBanners() {
+  const el = document.getElementById('bannerSlider');
+  if (!banners.length) return;
+  el.innerHTML = banners.map((b, i) => `
+    <div class="banner-slide ${i === 0 ? 'active' : ''}"
+         style="background-image:url('${b.image}')">
+      <h2>${b.title || ''}</h2>
+    </div>
+  `).join('') + `<div class="banner-dots">${
+    banners.map((_, i) => `<span class="${i === 0 ? 'active' : ''}" data-i="${i}"></span>`).join('')
+  }</div>`;
+  el.querySelectorAll('.banner-dots span').forEach(dot => {
+    dot.onclick = () => goBanner(+dot.dataset.i);
+  });
+  bannerTimer = setInterval(() => goBanner((bannerIndex + 1) % banners.length), 4000);
+}
+function goBanner(i) {
+  bannerIndex = i;
+  document.querySelectorAll('.banner-slide').forEach((s, idx) =>
+    s.classList.toggle('active', idx === i));
+  document.querySelectorAll('.banner-dots span').forEach((d, idx) =>
+    d.classList.toggle('active', idx === i));
+}
+
+function renderProducts(list) {
+  const grid = document.getElementById('productsGrid');
+  if (!list.length) {
+    grid.innerHTML = '<div class="loading">No products yet.</div>';
+    return;
+  }
+  grid.innerHTML = list.map((p, i) => `
+    <div class="product-card" style="animation-delay:${i * .05}s">
+      <img src="${p.image}" alt="${p.name}"
+        onerror="this.src='https://via.placeholder.com/300x180/111/fff?text=CF'"/>
+      <div class="pc-body">
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-price">Starting <b>GH₵ ${p.plans?.[0]?.price ?? 0}</b></div>
+        <a href="product-details.html?id=${p.id}" class="btn-view">VIEW PRODUCT</a>
+      </div>
+    </div>
+  `).join('');
+}
+
+</script>
+
 </body>
 </html>
