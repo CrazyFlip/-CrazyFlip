@@ -1,1 +1,45 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Website Settings — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="admin-wrap">
+  <div id="sidebar"></div>
+  <main class="main">
+    <h1>Website Settings</h1>
+    <div class="form-card">
+      <label>Website Name</label>
+      <input id="setSiteName" type="text" placeholder="CRAZY FLIP" />
+
+      <label>Logo URL</label>
+      <input id="setLogo" type="text" placeholder="https://..." />
+
+      <label>Ghana MoMo Number</label>
+      <input id="setMomo" type="text" placeholder="024XXXXXXX" />
+
+      <label>Account Name</label>
+      <input id="setAcc" type="text" />
+
+      <label>Payment Text</label>
+      <textarea id="setPayText" rows="3"></textarea>
+
+      <label>WhatsApp Number (Admin) +233...</label>
+      <input id="setWhatsapp" type="text" placeholder="+233XXXXXXXXX" />
+
+      <label>Telegram Username (@ ছাড়া)</label>
+      <input id="setTelegram" type="text" placeholder="username" />
+
+      <button class="save-btn" id="saveBtn">SAVE</button>
+    </div>
+  </main>
+</div>
+<script type="module" src="js/admin-settings.js"></script>
+</body>
+</html>
