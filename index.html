@@ -7,6 +7,250 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+
+<style>
+/* ============ INDEX PAGE ONLY ============ */
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#000;
+  color:#fff;
+  font-family:'Poppins',sans-serif;
+  font-weight:700;
+  overflow-x:hidden;
+}
+
+/* ============ HEADER ============ */
+.header {
+  position:sticky; top:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 5%;
+  background:#000;
+  border-bottom:1px solid #1a1a1a;
+}
+.logo {
+  font-size:22px; font-weight:900;
+  letter-spacing:1px; color:#fff; text-decoration:none;
+}
+.logo span { opacity:.5; }
+.nav-links { display:flex; gap:18px; align-items:center; }
+.nav-links a {
+  color:#fff; text-decoration:none;
+  font-size:13px; font-weight:800; letter-spacing:1px;
+  transition:.3s;
+}
+.nav-links a:hover { opacity:.6; }
+
+/* ============ BANNER SLIDER - FULL WIDTH ============ */
+.banner-slider {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  overflow: hidden;
+  background: #0a0a0a;
+  aspect-ratio: 16 / 9;
+  display: block;
+  line-height: 0;
+  font-size: 0;
+}
+.banner-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity .8s ease;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  line-height: 1.2;
+}
+.banner-slide.active { opacity: 1; }
+.banner-slide::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 40%;
+  background: linear-gradient(0deg, rgba(0,0,0,.65) 0%, rgba(0,0,0,0) 100%);
+  pointer-events: none;
+}
+.banner-slide h2 {
+  position: relative;
+  z-index: 2;
+  font-size: 18px;
+  font-weight: 900;
+  text-align: left;
+  text-shadow: 0 2px 20px rgba(0,0,0,.8);
+  padding: 18px 22px;
+  letter-spacing: 1px;
+  max-width: 85%;
+  line-height: 1.2;
+  margin: 0;
+}
+.banner-dots {
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  display: flex;
+  gap: 6px;
+  z-index: 5;
+  font-size: 0;
+}
+.banner-dots span {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.4);
+  cursor: pointer;
+  transition: .3s;
+  display: inline-block;
+}
+.banner-dots span.active {
+  background: #fff;
+  width: 22px;
+  border-radius: 4px;
+}
+
+/* ============ PRODUCTS SECTION ============ */
+.products-section {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 5% 60px;
+}
+.section-title {
+  font-size:24px; font-weight:900;
+  text-align:center;
+  margin-bottom:28px;
+  letter-spacing:2px;
+}
+.products-grid {
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:14px;
+}
+.product-card {
+  background:#0a0a0a;
+  border:1px solid #1a1a1a;
+  border-radius:14px;
+  overflow:hidden;
+  transition:.4s cubic-bezier(.2,.8,.2,1);
+  animation:fadeUp .6s ease both;
+}
+.product-card:hover {
+  transform:translateY(-6px);
+  border-color:#fff;
+}
+.product-card img {
+  width:100%;
+  aspect-ratio: 1 / 1;
+  object-fit:cover;
+  transition:.5s;
+  display:block;
+}
+.product-card:hover img { transform:scale(1.06); }
+.pc-body { padding:14px; }
+.pc-name {
+  font-size:14px; font-weight:800;
+  margin-bottom:6px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.pc-price {
+  font-size:12px; color:#bbb;
+  margin-bottom:12px; font-weight:600;
+}
+.pc-price b { color:#fff; font-size:15px; font-weight:900; }
+.btn-view {
+  display:block; width:100%;
+  padding:10px;
+  background:#fff; color:#000;
+  border-radius:8px;
+  font-weight:900; font-size:12px;
+  letter-spacing:1px;
+  transition:.3s;
+  text-align:center;
+  text-decoration:none;
+}
+.btn-view:hover {
+  background:#ccc;
+  transform:scale(1.02);
+}
+.loading {
+  grid-column:1/-1;
+  text-align:center;
+  padding:60px 20px;
+  color:#666;
+  font-size:14px;
+}
+
+/* ============ FOOTER ============ */
+.footer {
+  padding:24px 5%;
+  border-top:1px solid #1a1a1a;
+  text-align:center;
+  color:#888;
+  font-size:12px;
+  font-weight:600;
+}
+
+/* ============ ANIMATIONS ============ */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ============ TABLET & DESKTOP ============ */
+@media (min-width: 769px) {
+  .header { padding:18px 6%; }
+  .logo { font-size:24px; }
+  .nav-links { gap:22px; }
+  .nav-links a { font-size:14px; }
+  
+  .banner-slider {
+    aspect-ratio: 16 / 6;
+    max-width: 1200px;
+    margin: 30px auto;
+    border-radius: 16px;
+    border: 1px solid #1a1a1a;
+  }
+  .banner-slide h2 {
+    font-size: 32px;
+    padding: 28px 36px;
+    max-width: 70%;
+    letter-spacing: 2px;
+  }
+  .banner-dots {
+    bottom: 16px;
+    right: 20px;
+  }
+  .banner-dots span {
+    width: 8px; height: 8px;
+  }
+  .banner-dots span.active {
+    width: 26px;
+  }
+  
+  .section-title { font-size:32px; margin-bottom:40px; }
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 22px;
+  }
+  .pc-name { font-size:16px; }
+  .pc-price { font-size:13px; }
+}
+
+/* ============ SMALL PHONES ============ */
+@media (max-width: 380px) {
+  .products-grid { gap: 10px; }
+  .pc-body { padding: 10px; }
+  .pc-name { font-size: 12px; }
+  .pc-price b { font-size: 13px; }
+  .btn-view { font-size: 11px; padding: 8px; }
+}
+</style>
 </head>
 <body>
 
@@ -15,17 +259,18 @@
   <nav class="nav-links">
     <a href="index.html">HOME</a>
     <a href="products.html">PRODUCTS</a>
+    <a href="admin.html">ADMIN</a>
   </nav>
 </header>
 
 <section class="banner-slider" id="bannerSlider">
-  <div class="banner-slide active" style="background:#0a0a0a">
-    <h2>WELCOME TO CRAZY FLIP</h2>
+  <div class="banner-slide active" style="background:#0a0a0a; display:flex; align-items:center; justify-content:center;">
+    <h2 style="text-align:center; max-width:100%;">WELCOME TO CRAZY FLIP</h2>
   </div>
 </section>
 
-<section class="container">
-  <h2 class="page-title">OUR PRODUCTS</h2>
+<section class="products-section">
+  <h2 class="section-title">OUR PRODUCTS</h2>
   <div class="products-grid" id="productsGrid">
     <div class="loading">Loading...</div>
   </div>
@@ -36,6 +281,8 @@
 </footer>
 
 <script type="module">
+
+console.log('🏠 Homepage loading...');
 
 const firebaseConfig = {
   apiKey: "AIzaSyAtCagT7Al29I_WLsG4AFfy-DKGi_svA9A",
@@ -57,7 +304,7 @@ let banners = [], bannerIndex = 0, bannerTimer;
 
 (async () => {
   try {
-    // SETTINGS
+    /* SETTINGS */
     const sSnap = await get(ref(db, 'settings'));
     const settings = sSnap.val() || {};
     document.getElementById('footerName').textContent =
@@ -65,22 +312,24 @@ let banners = [], bannerIndex = 0, bannerTimer;
     document.title = settings.siteName || 'CRAZY FLIP';
     if (settings.logo) {
       document.getElementById('siteLogo').innerHTML =
-        `<img src="${settings.logo}" style="height:32px" alt="logo"/>`;
+        `<img src="${settings.logo}" style="height:28px" alt="logo"/>`;
     }
 
-    // BANNERS
+    /* BANNERS */
     const bSnap = await get(ref(db, 'banners'));
     const bData = bSnap.val() || {};
     banners = Object.keys(bData).map(id => ({ id, ...bData[id] }));
+    console.log('🎨 Banners loaded:', banners.length);
     renderBanners();
 
-    // PRODUCTS
+    /* PRODUCTS */
     const pSnap = await get(ref(db, 'products'));
     const pData = pSnap.val() || {};
     const products = Object.keys(pData).map(id => ({ id, ...pData[id] }));
-    renderProducts(products.slice(0, 8));
+    console.log('📦 Products loaded:', products.length);
+    renderProducts(products.slice(0, 12));
   } catch (e) {
-    console.error(e);
+    console.error('❌ Load error:', e);
     document.getElementById('productsGrid').innerHTML =
       '<div class="loading">Firebase connection failed.</div>';
   }
@@ -89,6 +338,7 @@ let banners = [], bannerIndex = 0, bannerTimer;
 function renderBanners() {
   const el = document.getElementById('bannerSlider');
   if (!banners.length) return;
+
   el.innerHTML = banners.map((b, i) => `
     <div class="banner-slide ${i === 0 ? 'active' : ''}"
          style="background-image:url('${b.image}')">
@@ -97,11 +347,16 @@ function renderBanners() {
   `).join('') + `<div class="banner-dots">${
     banners.map((_, i) => `<span class="${i === 0 ? 'active' : ''}" data-i="${i}"></span>`).join('')
   }</div>`;
+
   el.querySelectorAll('.banner-dots span').forEach(dot => {
     dot.onclick = () => goBanner(+dot.dataset.i);
   });
-  bannerTimer = setInterval(() => goBanner((bannerIndex + 1) % banners.length), 4000);
+
+  if (banners.length > 1) {
+    bannerTimer = setInterval(() => goBanner((bannerIndex + 1) % banners.length), 4000);
+  }
 }
+
 function goBanner(i) {
   bannerIndex = i;
   document.querySelectorAll('.banner-slide').forEach((s, idx) =>
@@ -119,7 +374,7 @@ function renderProducts(list) {
   grid.innerHTML = list.map((p, i) => `
     <div class="product-card" style="animation-delay:${i * .05}s">
       <img src="${p.image}" alt="${p.name}"
-        onerror="this.src='https://via.placeholder.com/300x180/111/fff?text=CF'"/>
+        onerror="this.src='https://via.placeholder.com/400x400/111/fff?text=CF'"/>
       <div class="pc-body">
         <div class="pc-name">${p.name}</div>
         <div class="pc-price">Starting <b>GH₵ ${p.plans?.[0]?.price ?? 0}</b></div>
