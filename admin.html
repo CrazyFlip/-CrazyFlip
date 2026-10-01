@@ -9,8 +9,19 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
 <div class="admin-wrap">
-  <div id="sidebar"></div>
+  <aside class="sidebar">
+    <a href="index.html" class="side-logo">CRAZY<span>FLIP</span></a>
+    <nav>
+      <a class="nav-btn active" href="admin.html">📊 Dashboard</a>
+      <a class="nav-btn" href="admin-orders.html">📦 Orders</a>
+      <a class="nav-btn" href="admin-products.html">🛍️ Products</a>
+      <a class="nav-btn" href="admin-banner.html">🖼️ Banner Manager</a>
+      <a class="nav-btn" href="admin-settings.html">⚙️ Website Settings</a>
+    </nav>
+  </aside>
+
   <main class="main">
     <h1>Dashboard</h1>
 
@@ -51,6 +62,39 @@
     </div>
   </main>
 </div>
-<script type="module" src="js/admin.js"></script>
+
+<script type="module">
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAtCagT7Al29I_WLsG4AFfy-DKGi_svA9A",
+  authDomain: "crazy-flip-be56c.firebaseapp.com",
+  databaseURL: "https://crazy-flip-be56c-default-rtdb.firebaseio.com",
+  projectId: "crazy-flip-be56c",
+  storageBucket: "crazy-flip-be56c.firebasestorage.app",
+  messagingSenderId: "298724582283",
+  appId: "1:298724582283:web:8e30164a256fe1fe96858e"
+};
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+onValue(ref(db, 'orders'), snap => {
+  const data = snap.val() || {};
+  const orders = Object.keys(data).map(id => ({ id, ...data[id] }));
+  document.getElementById('stTotal').textContent = orders.length;
+  document.getElementById('stPending').textContent =
+    orders.filter(o => o.status === 'Pending').length;
+  document.getElementById('stCompleted').textContent =
+    orders.filter(o => o.status === 'Completed').length;
+  document.getElementById('stRevenue').textContent =
+    orders.filter(o => o.status === 'Completed')
+          .reduce((s, o) => s + (Number(o.price) || 0), 0);
+});
+
+</script>
+
 </body>
 </html>
