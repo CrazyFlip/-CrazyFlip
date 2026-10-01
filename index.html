@@ -9,7 +9,6 @@
 <link rel="stylesheet" href="css/style.css">
 
 <style>
-/* ============ INDEX PAGE ONLY ============ */
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
   background:#000;
@@ -40,7 +39,7 @@ body {
 }
 .nav-links a:hover { opacity:.6; }
 
-/* ============ BANNER SLIDER - NO GAP ============ */
+/* ============ BANNER SLIDER - IMAGE TAG ============ */
 .banner-slider {
   position: relative;
   width: 100%;
@@ -48,48 +47,47 @@ body {
   padding: 0;
   border-radius: 0;
   overflow: hidden;
-  background: #0a0a0a;
-  aspect-ratio: 16 / 7;
+  background: #000;
   display: block;
   line-height: 0;
   font-size: 0;
 }
+
 .banner-slide {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity .8s ease;
-  background-size: cover;        /* ✅ পুরো box ভরবে - কোনো ফাঁকা থাকবে না */
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: #0a0a0a;
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-start;
-  line-height: 1.2;
-}
-.banner-slide.active { opacity: 1; }
-.banner-slide::after {
-  content: '';
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 30%;
-  background: linear-gradient(0deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 100%);
-  pointer-events: none;
-}
-.banner-slide h2 {
+  display: none;
   position: relative;
-  z-index: 2;
+  width: 100%;
+}
+.banner-slide.active {
+  display: block;
+}
+
+.banner-slide img {
+  display: block;
+  width: 100%;
+  height: auto;      /* ✅ Image এর নিজের height - box = image height */
+  margin: 0;
+  padding: 0;
+}
+
+/* Title overlay (optional) */
+.banner-slide .banner-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20px 22px;
+  background: linear-gradient(0deg, rgba(0,0,0,.7) 0%, rgba(0,0,0,0) 100%);
+  color: #fff;
   font-size: 16px;
   font-weight: 900;
   text-align: left;
-  text-shadow: 0 2px 20px rgba(0,0,0,.8);
-  padding: 16px 20px;
   letter-spacing: 1px;
-  max-width: 85%;
   line-height: 1.2;
-  margin: 0;
+  text-shadow: 0 2px 12px rgba(0,0,0,.9);
 }
+
+/* Dots */
 .banner-dots {
   position: absolute;
   bottom: 10px;
@@ -98,6 +96,7 @@ body {
   gap: 6px;
   z-index: 5;
   font-size: 0;
+  line-height: 0;
 }
 .banner-dots span {
   width: 7px; height: 7px;
@@ -197,7 +196,6 @@ body {
   font-weight:600;
 }
 
-/* ============ ANIMATIONS ============ */
 @keyframes fadeUp {
   from { opacity:0; transform:translateY(20px); }
   to   { opacity:1; transform:translateY(0); }
@@ -209,31 +207,19 @@ body {
   .logo { font-size:24px; }
   .nav-links { gap:22px; }
   .nav-links a { font-size:14px; }
-  
+
   .banner-slider {
-    aspect-ratio: 16 / 6;
     max-width: 1200px;
     margin: 30px auto;
     border-radius: 16px;
     border: 1px solid #1a1a1a;
   }
-  .banner-slide h2 {
-    font-size: 28px;
-    padding: 24px 32px;
-    max-width: 70%;
+  .banner-slide .banner-title {
+    font-size: 26px;
+    padding: 28px 32px;
     letter-spacing: 2px;
   }
-  .banner-dots {
-    bottom: 14px;
-    right: 18px;
-  }
-  .banner-dots span {
-    width: 8px; height: 8px;
-  }
-  .banner-dots span.active {
-    width: 26px;
-  }
-  
+
   .section-title { font-size:32px; margin-bottom:40px; }
   .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -243,7 +229,6 @@ body {
   .pc-price { font-size:13px; }
 }
 
-/* ============ SMALL PHONES ============ */
 @media (max-width: 380px) {
   .products-grid { gap: 10px; }
   .pc-body { padding: 10px; }
@@ -260,12 +245,15 @@ body {
   <nav class="nav-links">
     <a href="index.html">HOME</a>
     <a href="products.html">PRODUCTS</a>
+    <a href="admin.html">ADMIN</a>
   </nav>
 </header>
 
 <section class="banner-slider" id="bannerSlider">
-  <div class="banner-slide active" style="background:#0a0a0a; display:flex; align-items:center; justify-content:center;">
-    <h2 style="text-align:center; max-width:100%;">WELCOME TO CRAZY FLIP</h2>
+  <div class="banner-slide active">
+    <div style="background:#0a0a0a; padding:60px 20px; text-align:center;">
+      <h2 style="font-size:22px; font-weight:900; letter-spacing:2px;">WELCOME TO CRAZY FLIP</h2>
+    </div>
   </div>
 </section>
 
@@ -339,10 +327,12 @@ function renderBanners() {
   const el = document.getElementById('bannerSlider');
   if (!banners.length) return;
 
+  /* ✅ Image tag version - box = image height */
   el.innerHTML = banners.map((b, i) => `
-    <div class="banner-slide ${i === 0 ? 'active' : ''}"
-         style="background-image:url('${b.image}')">
-      <h2>${b.title || ''}</h2>
+    <div class="banner-slide ${i === 0 ? 'active' : ''}">
+      <img src="${b.image}" alt="${b.title || 'Banner'}"
+        onerror="this.src='https://via.placeholder.com/1200x500/0a0a0a/fff?text=CRAZY+FLIP'"/>
+      ${b.title ? `<div class="banner-title">${b.title}</div>` : ''}
     </div>
   `).join('') + `<div class="banner-dots">${
     banners.map((_, i) => `<span class="${i === 0 ? 'active' : ''}" data-i="${i}"></span>`).join('')
