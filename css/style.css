@@ -30,35 +30,86 @@ a { color:#fff; text-decoration:none; }
 }
 
 /* ============ BANNER SLIDER ============ */
+/* ============ BANNER SLIDER ============ */
 .banner-slider {
-  position:relative; height:70vh; min-height:400px;
-  overflow:hidden; background:#0a0a0a;
+  position:relative;
+  width:100%;
+  max-width:1200px;
+  height:380px;
+  margin:30px auto;
+  border-radius:16px;
+  overflow:hidden;
+  background:#0a0a0a;
+  border:1px solid #1a1a1a;
 }
 .banner-slide {
-  position:absolute; inset:0; opacity:0;
-  transition:opacity 1s ease;
-  background-size:cover; background-position:center;
-  display:flex; align-items:center; justify-content:center;
+  position:absolute; inset:0;
+  opacity:0;
+  transition:opacity .8s ease;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  display:flex;
+  align-items:flex-end;
+  justify-content:flex-start;
 }
 .banner-slide.active { opacity:1; }
 .banner-slide::after {
-  content:''; position:absolute; inset:0;
-  background:linear-gradient(180deg,rgba(0,0,0,.4),rgba(0,0,0,.85));
+  content:'';
+  position:absolute;
+  left:0; right:0; bottom:0;
+  height:60%;
+  background:linear-gradient(0deg, rgba(0,0,0,.75) 0%, rgba(0,0,0,0) 100%);
+  pointer-events:none;
 }
 .banner-slide h2 {
-  position:relative; z-index:2; font-size:48px;
-  font-weight:900; text-align:center;
-  text-shadow:0 4px 30px #000; padding:0 20px; letter-spacing:2px;
+  position:relative;
+  z-index:2;
+  font-size:32px;
+  font-weight:900;
+  text-align:left;
+  text-shadow:0 2px 20px rgba(0,0,0,.8);
+  padding:32px 40px;
+  letter-spacing:2px;
+  max-width:70%;
 }
 .banner-dots {
-  position:absolute; bottom:24px; left:50%;
-  transform:translateX(-50%); display:flex; gap:8px; z-index:5;
+  position:absolute;
+  bottom:16px;
+  right:20px;
+  display:flex;
+  gap:6px;
+  z-index:5;
 }
 .banner-dots span {
-  width:10px; height:10px; border-radius:50%;
-  background:rgba(255,255,255,.3); cursor:pointer; transition:.3s;
+  width:8px; height:8px;
+  border-radius:50%;
+  background:rgba(255,255,255,.35);
+  cursor:pointer;
+  transition:.3s;
 }
-.banner-dots span.active { background:#fff; width:28px; border-radius:5px; }
+.banner-dots span.active {
+  background:#fff;
+  width:24px;
+  border-radius:4px;
+}
+
+@media (max-width:768px) {
+  .banner-slider {
+    height:220px;
+    margin:16px auto;
+    border-radius:10px;
+  }
+  .banner-slide h2 {
+    font-size:18px;
+    padding:20px 20px;
+    max-width:100%;
+  }
+  .banner-dots {
+    bottom:10px;
+    right:12px;
+  }
+}
 
 /* ============ PRODUCTS GRID ============ */
 .products-grid {
